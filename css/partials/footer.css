@@ -1,5 +1,6 @@
 .footer {
   margin-top: $margin-primary;
+  border-radius: 0px 0px 20px 20px;
   border: $line-secondary $color-text-primary solid;
 }
 .footer .footer-text {
