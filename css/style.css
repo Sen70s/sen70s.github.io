@@ -723,6 +723,29 @@ input[type="search"]::-webkit-search-results-decoration {
 }
 .post-content {
   margin-top: 2rem;
+  line-height: 1.75;
+}
+.post-content p {
+  line-height: 1.75;
+}
+.post-content li {
+  line-height: 1.75;
+}
+.post-content h2 {
+  margin-top: 3rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid #ced6df;
+}
+.post-content h3 {
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+.post-content hr {
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  border: 0;
+  border-top: 1px solid #ced6df;
 }
 h1,
 h2,

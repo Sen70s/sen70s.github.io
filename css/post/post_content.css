@@ -1,5 +1,28 @@
 .post-content {
   margin-top: $margin-l-1;
+  line-height: 1.75;
+}
+.post-content p {
+  line-height: 1.75;
+}
+.post-content li {
+  line-height: 1.75;
+}
+.post-content h2 {
+  margin-top: $margin-l-2;
+  margin-bottom: $margin-m-1;
+  padding-bottom: $margin-s-2;
+  border-bottom: $line-third solid $color-text-third;
+}
+.post-content h3 {
+  margin-top: $margin-l-0;
+  margin-bottom: $margin-m-1;
+}
+.post-content hr {
+  margin-top: $margin-l-1;
+  margin-bottom: $margin-l-1;
+  border: 0;
+  border-top: $line-third solid $color-text-third;
 }
 h1,
 h2,
