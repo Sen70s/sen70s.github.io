@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="John Doe">
+
+
+
+
+
+
+
+<title>一个工作区，装下所有目录：dsh-workspace-plus 设计手记 | Sen70s&#39;blog</title>
+
+
+
+    <link rel="icon" href="/hersen'slogo.png">
+
+
+
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&family=Roboto+Mono&display=swap');
+</style>
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/menu.js"></script>
+    
+
+
+
+
+
+
+
+
+
+
+  <meta name="generator" content="Hexo 7.3.0"></head>
+  <body>
+    <div class="mask-border">
+    </div>
+
+    <div class="wrapper">
+
+      <div class="header">
+  <div class="flex-container">
+    <div class="header-inner">
+      <div class="site-brand-container">
+        <a href="/">
+          
+            <img class="logo-img" src="/hersen&#39;slogo.png" alt="logo_image">
+          
+        </a>
+      </div>
+      <div id="menu-btn" class="menu-btn" onclick="toggleMenu()">
+        Menu
+      </div>
+      <nav class="site-nav">
+        <ul class="menu-list">
+          
+            
+              <li class="menu-item">
+                <a href="/">主页</a>
+              </li> 
+                   
+          
+            
+              <li class="menu-item">
+                <a href="/archives/">文章</a>
+              </li> 
+                   
+          
+            
+              <li class="menu-item">
+                <a href="/projects/">项目</a>
+              </li> 
+                   
+          
+            
+              <li class="menu-item">
+                <a href="/resume/">简历</a>
+              </li> 
+                   
+          
+            
+              <li class="menu-item">
+                <a href="/categories/gallery/">画廊</a>
+              </li> 
+                   
+          
+            
+              <li class="menu-item">
+                <a href="/about/">关于</a>
+              </li> 
+                   
+          
+          
+        </ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main">
+        <div class="flex-container">
+          <article id="post">
+
+  
+    <div class="post-head">
+    <div class="post-info">
+        <div class="tag-list">
+            
+                
+                    <span class="post-tag">
+                        <a href="/tags/DSH/">
+                            DSH
+                        </a>
+                    </span>    
+                
+                    <span class="post-tag">
+                        <a href="/tags/%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91/">
+                            插件开发
+                        </a>
+                    </span>    
+                
+                    <span class="post-tag">
+                        <a href="/tags/%E6%95%88%E7%8E%87%E5%B7%A5%E5%85%B7/">
+                            效率工具
+                        </a>
+                    </span>    
+                           
+            
+        </div>
+        <div class="post-title">
+            
+            
+                一个工作区，装下所有目录：dsh-workspace-plus 设计手记
+            
+            
+        </div>
+        <span class="post-date">
+            Nov 19, 2026
+        </span>
+    </div>
+    <div class="post-img">
+        
+            <img src="/images/dsh-workspace-plus/dialog-picked.png" alt="featured_image">
+              
+    </div>
+</div>
+    <div class="post-content">
+    <blockquote>
+<p>一个工作区只能是一个目录，但真实项目从来不止一个目录。</p>
+</blockquote>
+<h2 id="从一次“改错门”说起"><a href="#从一次“改错门”说起" class="headerlink" title="从一次“改错门”说起"></a>从一次“改错门”说起</h2><p>前阵子让 agent 改一个登录接口。它在 <code>D:\projects\wanderisland\backend\src\auth</code> 里翻了两圈，最后把改动写进了旁边的 <code>backend-legacy</code>。两个目录名字只差一个后缀，代码风格也像，agent 选错并不奇怪——奇怪的是，我明明在对话里说了“后端”。</p>
+<p>问题不在于模型不够聪明，而在于它手里没有一张可靠的对照表。DeepSeek Harness（下面简称 DSH）里的“工作区”就是<strong>一个目录</strong>，会话的 <code>cwd</code> 只有一个。真实项目却常常长这样：</p>
+<ul>
+<li>前端在 <code>D:\projects\wanderisland\apps\web</code></li>
+<li>后端在另一个仓库 <code>D:\projects\api</code></li>
+<li>文档在 <code>D:\projects\wanderisland\docs</code></li>
+<li>管理后台干脆在 <code>D:\plugins\admin-ui</code></li>
+</ul>
+<p>它们同属一个产品，却散落在四个根目录。每次让 agent 跨目录干活，我都得手打一遍绝对路径；少打一次，它就可能凭目录名去猜。猜错的代价不是多跑一次工具调用，而是改错文件、审错 diff。</p>
+<p>于是有了 <a target="_blank" rel="noopener" href="https://github.com/Sen70s/dsh-workspace-plus">dsh-workspace-plus</a>：<strong>一个工作区登记多个目录，每个目录一个标签。</strong> 标签表注入每次请求，输入框里打 <code>@</code> 也能直接引用。</p>
+<h2 id="先解决“它在哪”"><a href="#先解决“它在哪”" class="headerlink" title="先解决“它在哪”"></a>先解决“它在哪”</h2><p>插件的入口藏在侧栏工作区那一行：鼠标停上去，操作区会多出一个文件夹图标。</p>
+<p><img src="/images/dsh-workspace-plus/row-button.png" alt="工作区行上的目录按钮"></p>
+<p><em>侧栏工作区行：更多、工作区目录设置、新建会话。</em></p>
+<p>点开就是这张标签表。添加目录走系统的目录选择器；标签为空时会按目录名猜一个（<code>my api</code> → <code>my-api</code>），也可以自己写，再加一句说明。</p>
+<p><img src="/images/dsh-workspace-plus/dialog-picked.png" alt="工作区目录设置弹窗"></p>
+<p><em>一个工作区、四个目录。根目录之外的两个带盾牌提示。</em></p>
+<p>标签不是随便写的：只允许字母、数字和 <code>.</code>、<code>_</code>、<code>-</code>，最长 32 个字符，<code>cwd</code>、<code>root</code>、<code>this</code> 这类会在对话里产生歧义的词被保留。标签不区分大小写，同一个工作区里也不能重名。这些限制看起来琐碎，但它们保证了一件事：<strong>标签在自然语言里指代明确</strong>。</p>
+<p>目录本身也要过校验：必须是绝对路径、必须存在、必须是目录。工作区根目录之外的目录会被标上警告——DSH 的沙箱只把工作区根目录当作可写根，外面的目录能读，写入则需要一次显式批准。插件不替你绕过这条边界，只是提前把代价说清楚。</p>
+<h3 id="标签表怎么进入对话"><a href="#标签表怎么进入对话" class="headerlink" title="标签表怎么进入对话"></a>标签表怎么进入对话</h3><p>真正起作用的是每次请求前注入的一小段运行时上下文：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">工作区多目录映射（dsh-workspace-plus 插件维护）</span><br><span class="line"></span><br><span class="line">当前会话的 cwd（工作区根目录）：`D:\projects\wanderisland`</span><br><span class="line"></span><br><span class="line">用户提到下列「标签」时，指的就是表中对应的绝对目录……</span><br><span class="line">- `web_frontend` → `D:\projects\wanderisland\apps\web`（前端）</span><br><span class="line">- `backend_all` → `D:\projects\api`（后端 API） ⚠ 在工作区根目录之外</span><br><span class="line">- `docs` → `D:\projects\wanderisland\docs`</span><br><span class="line">- `admin_frontend` → `D:\plugins\admin-ui`（后台） ⚠ 在工作区根目录之外</span><br></pre></td></tr></table></figure>
+
+<p>这段文本只在工作区登记了目录、并且该工作区启用了插件时才出现；没有标签时它是空字符串，不会白占 prompt。它排在运行时上下文的 130 位——DSH 自带的沙箱策略、审批策略、子代理委派在 110 到 120 之间，130 正好接在“我在哪、能写哪”这一块后面，读起来是同一段话的延续。</p>
+<p>除了注入，还有两条路：</p>
+<ul>
+<li>在输入框打 <code>@</code>，候选里会多出一组“工作区目录”。选中后落一个 chip，<strong>送给模型的是那个目录的绝对路径</strong>。哪怕标签表后来被上下文压缩挤掉了，这一条指代也不会失焦。</li>
+<li>agent 也可以自己管这张表。内置的 <code>workspace_dirs</code> 工具支持增、删、改、查，所以“把 <code>D:\proj\backend</code> 记成 backend，说明写后端 API”“backend 改指向 v2”“现在有哪些标签”都能直接在对话里说。</li>
+</ul>
+<p>每个工作区还有一个独立开关：插件页 → <code>dsh-workspace-plus</code> → <code>workspaceplus</code> 行的设置按钮。关掉不会删标签，只是这个工作区暂时不参与注入和 <code>@</code> 候选。</p>
+<h2 id="侧栏那点事"><a href="#侧栏那点事" class="headerlink" title="侧栏那点事"></a>侧栏那点事</h2><p>多目录是主线，但用久了会发现侧栏还有几个小问题。它们最后都长进了同一个插件里。</p>
+<h3 id="让刚工作过的文件夹浮上来"><a href="#让刚工作过的文件夹浮上来" class="headerlink" title="让刚工作过的文件夹浮上来"></a>让刚工作过的文件夹浮上来</h3><p>工作区一多，那列文件夹就得上下翻找。现在哪个工作区最近<strong>真的开始干活</strong>，它就排到最上面：</p>
+<ul>
+<li>点“新建会话”只是生成一个空对话，列表一动不动；按下发送、对话开始回答，这个工作区才会上去。</li>
+<li>打开 DSH 时不重排。启动后列表保持宿主保存的顺序，插件先观察；只有真的开始工作才调整。把开关从关拨到开是唯一例外，会立刻对齐一次。</li>
+<li>发起对话的文件夹里如果已经有别的对话在跑，这次不排——你本来就在那个文件夹里工作。</li>
+<li>同一个对话在 AI 回复结束后的一段时间内继续发消息，算同一段工作，不重排；超过这段时间后的第一次发送才算新的一段。默认 5 分钟，可改，填 0 表示每次发送都算。</li>
+<li>顺序用的就是 DSH 自己的工作区顺序，刷新页面、重启之后依然保持。已经归档的对话不参与排序；没有对话的工作区排在最后，时间并列时保持原顺序。</li>
+</ul>
+<p>实现上，插件不搬动任何侧栏 DOM 节点，而是调用宿主的 <code>workspaces.insertBefore</code>——和手动拖拽文件夹是同一套公开命令。行高、展开状态、hover 按钮都不受影响，也不会因为两套排序打架。</p>
+<h3 id="折叠了，也别把“还在跑”藏起来"><a href="#折叠了，也别把“还在跑”藏起来" class="headerlink" title="折叠了，也别把“还在跑”藏起来"></a>折叠了，也别把“还在跑”藏起来</h3><p>文件夹一收，里面所有对话行都消失。侧栏是短了，但也看不出哪个文件夹里还有任务在跑。</p>
+<p>这个功能让收起的工作区只保留“正在工作”的几条：正在运行（含子代理在跑）、等待批准或回答、以及已完成但你还没看的对话，会以 DSH 原生的会话行显示在文件夹标题下面；空闲对话照常收起。没有正在工作的对话时，文件夹还是只有一行。</p>
+<p><img src="/images/dsh-workspace-plus/collapsed-active.png" alt="折叠的工作区里仍然显示正在工作的对话"></p>
+<p><em>收起之后，正在运行、待审批、刚完成还没看的对话还在。</em></p>
+<p>这里有一个实现上的坑：DSH 内部仍然认为文件夹是展开的，插件只是把空闲行隐藏起来，所以折叠变成了“过滤”。过滤标记必须打在<strong>分组容器</strong>上——DSH 会给工作区行包一层 hover 卡片的 <code>&lt;span&gt;</code>，标记如果落在那层上，就没有任何会话行可过滤，表现是“点了没反应、再也展不开”。保留的行仍然是 DSH 自己的会话行，hover 菜单、置顶、重命名、归档、复制 ID 都照常可用。点开一个“已完成”的行后，它会先留在折叠列表里，不会点一下就不见。</p>
+<h3 id="删除工作区时，多问一句"><a href="#删除工作区时，多问一句" class="headerlink" title="删除工作区时，多问一句"></a>删除工作区时，多问一句</h3><p>DSH 删除工作区时并不删对话：那些会话会失去归属，堆到侧栏的“未分组”里，和新建的临时对话混在一起。插件接管了“删除工作区”的那一下确认：</p>
+<ul>
+<li>先弹这个工作区自己的确认：“有 N 个对话，删除后它们会移到『未分组』。要不要先归档？”</li>
+<li>归档按钮要<strong>长按约 1.2 秒</strong>才生效，松手即取消——避免手滑把一整个工作区的对话都收起来。</li>
+<li>长按完成后一次性归档全部对话，然后才真正删除工作区；也可以选择“仅删除工作区”，行为和原生完全一样；取消则两层确认一起关掉。</li>
+</ul>
+<p>插件只认“标题会原样重复为确认按钮文字、且正文里引用了某个工作区名字”的那一个弹窗。如果将来的 DSH 改了结构、插件认不出来，它会什么都不做，原生流程照旧。删除本身也仍由 DSH 完成：插件拦截的是原生确认按钮的那一次点击，随后把同一次点击原样放行。</p>
+<h2 id="通知：不用一直盯着窗口"><a href="#通知：不用一直盯着窗口" class="headerlink" title="通知：不用一直盯着窗口"></a>通知：不用一直盯着窗口</h2><p>插件里还并入了原来的 <code>dsh-notice</code>。对话请求权限、询问用户、任务完成、中断、出错时，弹一条 Windows 原生通知；点通知直接回到那个对话。</p>
+<p>这些通知全部来自 DSH 已经发出的事件，插件只观察，不改变 agent 的行为：</p>
+<ul>
+<li><code>approval/request</code>：工具调用在等权限决定</li>
+<li><code>user-questions/request</code>：模型问了用户一个结构化问题</li>
+<li><code>session/event turn/end</code>：一轮结束、被中断或失败</li>
+<li><code>agent/error</code>：agent 在耐久回合之外出错</li>
+</ul>
+<p>两个 waterfall 监听器都用 <code>&#123; prepend: true &#125;</code> 注册，并且无条件调用 <code>next()</code>，把结果原样返回。这不是偏好问题：waterfall 按注册顺序执行，先注册的在最外层，而 DSH 自带的远程转发器在桌面端回答之后<strong>不会</strong>再调用 <code>next()</code>。如果监听器注册在尾部，恰恰在这个插件最需要的环境里永远不会运行。</p>
+<p>点通知要能回到对话，这是插件唯一离开宿主进程的地方。toast 带一个 <code>dsh-notice:open?s=&lt;session&gt;</code> 协议激活，插件在 <code>HKCU</code> 下注册这个协议，指向这台机器上真正能跑的点击启动器：</p>
+<ol>
+<li><strong>helper</strong>：一个约 10 KB 的 C# 小程序（<code>click-host.cs</code>），点击时调用插件自己的 loopback 路由，然后在同一个进程里恢复并聚焦 Harness 窗口。它解决的是 PowerShell 路线的老问题：每次点击闪一个控制台、新起的子进程经常被前台锁拒绝、窗口收进托盘后脚本根本够不着。</li>
+<li><strong>windowless-powershell</strong>：编译不出 helper 的机器上，用不产生控制台的方式启动 PowerShell。</li>
+<li><strong>powershell</strong>：最后的兜底，仍然需要能用的 PowerShell。</li>
+</ol>
+<p>helper 由宿主在首次注册协议时用系统自带的 <code>csc.exe</code> 现编到 <code>~/.dsh/notice/</code> 并缓存；编译不可用就自动退化。点通知触发的 <code>/dsh-notice/api/open</code> 不带会话、没有浏览器身份，所以改用注册命令里那个每进程随机的 token 认证，没带 token 直接 403。</p>
+<h2 id="几个工程上的选择"><a href="#几个工程上的选择" class="headerlink" title="几个工程上的选择"></a>几个工程上的选择</h2><p>做完功能之后，剩下的时间大多花在“怎么让它不出错”上。</p>
+<p><strong>状态文件原子写。</strong> 标签表存在 <code>~/.dsh/workspaceplus/directories.json</code>，可以直接手改。写的时候先写同目录的临时文件再 <code>rename</code>，崩在中间也不会留下半张表。文件损坏或格式不对时降级成空状态，不会拦住 DSH 启动。</p>
+<p><strong>路由一律 fail closed。</strong> 浏览器的 <code>/workspaceplus/api</code>、通知的 <code>/dsh-notice/api</code> 和 <code>/dsh-notice/api/pending</code> 都要过宿主的 <code>connection.admit</code>。认证服务没挂、<code>admit</code> 不存在或抛错，一律 503，读写都不放行。这里没有 loopback 豁免：<code>127.0.0.1</code> 不是信任边界，本机进程不是已认证调用方，操作员浏览器里的页面也能访问 loopback。这个接口写下的目录备注会进入模型上下文，不能让未认证的调用方有机会改它。</p>
+<p><strong>尽量不改宿主。</strong> 排序走公开命令，折叠是过滤而不是改状态，删除确认认不出来就放行，通知只观察事件。插件应该像一层薄薄的壳，卸掉之后宿主还是原来的宿主。</p>
+<p><strong>没有打包步骤。</strong> <code>lib/</code> 就是手写源码，从 npm、GitHub、本地目录三种方式装到的都是可直接加载的代码。唯一的例外是通知点击助手，它由宿主现编并缓存。</p>
+<p><strong>自检。</strong> <code>node tools/verify.mjs</code> 不需要安装、不需要 DSH 在跑，704 项断言覆盖 manifest、patch 层、每条路由的认证失败路径、浏览器半、<code>@</code> 候选源、删除工作区的归档拦截、侧栏排序和通知启动器的编译与回退。写插件最花时间的往往不是“功能跑通”，而是“把边角情况一个个钉死”。</p>
+<h2 id="装一下"><a href="#装一下" class="headerlink" title="装一下"></a>装一下</h2><p>要求 DSH <code>&gt;=0.1.7-rc.2</code>，当前版本 <code>0.9.2</code>。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dsh plugin --profile desktop add dsh-workspace-plus</span><br></pre></td></tr></table></figure>
+
+<p>装完重启 <code>dsh</code> 并刷新页面。卸载：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dsh plugin --profile desktop remove dsh-workspace-plus</span><br></pre></td></tr></table></figure>
+
+<p>如果你之前装过独立的 <code>dsh-notice</code>，先从 profile 里移除它再装本包——两者的路由、协议与设置存储完全相同，同装会同名冲突。</p>
+<p>一个小建议：<strong>把工作区建在几个项目的共同父目录上</strong>，标签都放进去。DSH 的沙箱只认工作区根目录为可写根，根目录之外的目录只能读，agent 每次越界写入都要你批准一次。把父目录当根，标签表里的路径就都在可写范围内，跨目录协作才真正顺滑。</p>
+<h2 id="写在最后"><a href="#写在最后" class="headerlink" title="写在最后"></a>写在最后</h2><p>这个插件解决的不是一个很“大”的问题。它没有模型、没有算法，做的只是把一张对照表稳定地送到模型眼前，再顺手把侧栏里几个反复出现的摩擦点磨平。</p>
+<p>但用久了会发现，agent 协作里很多错误都来自这种小小的歧义：<code>backend</code> 是哪个 backend、折叠的文件夹里还有没有任务、删除工作区之后对话去了哪里。歧义不会让任务立刻失败，它只是让每一次操作都多一层“可能改错”的不确定。插件能做的，是把这些不确定提前变成确定的约定——一个标签、一条绝对路径、一次明确的确认。</p>
+<p>代码和文档都在 <a target="_blank" rel="noopener" href="https://github.com/Sen70s/dsh-workspace-plus">GitHub</a>，也可以从 <a target="_blank" rel="noopener" href="https://www.npmjs.com/package/dsh-workspace-plus">npm</a> 安装。如果你也在一个工作区里塞了好几个仓库，欢迎试试。</p>
+
+</div> 
+
+<script>
+    window.onload = detectors();
+</script>
+    <div class="post-footer">
+    <div class="h-line-primary"></div>
+    <nav class="post-nav">
+        <div class="prev-item">
+           
+        </div>
+        <div class="next-item">
+            
+                <div class="icon arrow-right"></div>
+                <div class="post-link">
+                  <a href="/2025/06/22/1-x/">Next</a>  
+                </div>  
+            
+        </div>
+    </nav>
+</div>
+
+    
+      <div class="post-comment">
+
+     
+
+     
+    
+    
+
+</div>
+     
+  
+</article>
+        </div>
+      </div>
+      
+      <div class="footer">
+    <div class="flex-container">
+        <div class="footer-text">
+            
+            
+                Sen70s&#39; blog | 
+            
+            
+                Powered by <a target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a> & <a target="_blank" rel="noopener" href="https://github.com/zoeingwingkei/frame/">Frame</a>
+                
+        </div>
+    </div>
+</div>
+
+    </div>
+
+    
+    
+
+  </body>
+</html>
