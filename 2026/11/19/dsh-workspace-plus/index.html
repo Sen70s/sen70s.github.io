@@ -160,7 +160,7 @@
     </div>
     <div class="post-img">
         
-            <img src="/images/dsh-workspace-plus/dialog-picked.png" alt="featured_image">
+            <div class="h-line-primary"></div>
               
     </div>
 </div>
@@ -179,7 +179,8 @@
 <p>它们同属一个产品，却散落在四个根目录。每次让 agent 跨目录干活，我都得手打一遍绝对路径；少打一次，它就可能凭目录名去猜。猜错的代价不是多跑一次工具调用，而是改错文件、审错 diff。</p>
 <p>于是有了 <a target="_blank" rel="noopener" href="https://github.com/Sen70s/dsh-workspace-plus">dsh-workspace-plus</a>：<strong>一个工作区登记多个目录，每个目录一个标签。</strong> 标签表注入每次请求，输入框里打 <code>@</code> 也能直接引用。</p>
 <h2 id="先解决“它在哪”"><a href="#先解决“它在哪”" class="headerlink" title="先解决“它在哪”"></a>先解决“它在哪”</h2><p>插件的入口藏在侧栏工作区那一行：鼠标停上去，操作区会多出一个文件夹图标。</p>
-<p><img src="/images/dsh-workspace-plus/row-button.png" alt="工作区行上的目录按钮"></p>
+<img src="/images/dsh-workspace-plus/row-button.png" alt="工作区行上的目录按钮" style="max-width:420px;width:100%;">
+
 <p><em>侧栏工作区行：更多、工作区目录设置、新建会话。</em></p>
 <p>点开就是这张标签表。添加目录走系统的目录选择器；标签为空时会按目录名猜一个（<code>my api</code> → <code>my-api</code>），也可以自己写，再加一句说明。</p>
 <p><img src="/images/dsh-workspace-plus/dialog-picked.png" alt="工作区目录设置弹窗"></p>
@@ -208,7 +209,8 @@
 <p>实现上，插件不搬动任何侧栏 DOM 节点，而是调用宿主的 <code>workspaces.insertBefore</code>——和手动拖拽文件夹是同一套公开命令。行高、展开状态、hover 按钮都不受影响，也不会因为两套排序打架。</p>
 <h3 id="折叠了，也别把“还在跑”藏起来"><a href="#折叠了，也别把“还在跑”藏起来" class="headerlink" title="折叠了，也别把“还在跑”藏起来"></a>折叠了，也别把“还在跑”藏起来</h3><p>文件夹一收，里面所有对话行都消失。侧栏是短了，但也看不出哪个文件夹里还有任务在跑。</p>
 <p>这个功能让收起的工作区只保留“正在工作”的几条：正在运行（含子代理在跑）、等待批准或回答、以及已完成但你还没看的对话，会以 DSH 原生的会话行显示在文件夹标题下面；空闲对话照常收起。没有正在工作的对话时，文件夹还是只有一行。</p>
-<p><img src="/images/dsh-workspace-plus/collapsed-active.png" alt="折叠的工作区里仍然显示正在工作的对话"></p>
+<img src="/images/dsh-workspace-plus/collapsed-active.png" alt="折叠的工作区里仍然显示正在工作的对话" style="max-width:480px;width:100%;">
+
 <p><em>收起之后，正在运行、待审批、刚完成还没看的对话还在。</em></p>
 <p>这里有一个实现上的坑：DSH 内部仍然认为文件夹是展开的，插件只是把空闲行隐藏起来，所以折叠变成了“过滤”。过滤标记必须打在<strong>分组容器</strong>上——DSH 会给工作区行包一层 hover 卡片的 <code>&lt;span&gt;</code>，标记如果落在那层上，就没有任何会话行可过滤，表现是“点了没反应、再也展不开”。保留的行仍然是 DSH 自己的会话行，hover 菜单、置顶、重命名、归档、复制 ID 都照常可用。点开一个“已完成”的行后，它会先留在折叠列表里，不会点一下就不见。</p>
 <h3 id="删除工作区时，多问一句"><a href="#删除工作区时，多问一句" class="headerlink" title="删除工作区时，多问一句"></a>删除工作区时，多问一句</h3><p>DSH 删除工作区时并不删对话：那些会话会失去归属，堆到侧栏的“未分组”里，和新建的临时对话混在一起。插件接管了“删除工作区”的那一下确认：</p>
